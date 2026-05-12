@@ -22473,8 +22473,9 @@ function bindUI(){
   </div>
 </div>
 
-<!-- ═══ BOTÓN FLOTANTE DE DIAGNÓSTICO TEMPORAL ═══ -->
-<button id="rsvBtnDiag" onclick="if(typeof mostrarDiag==='function'){mostrarDiag();}else{alert('Diag no cargado aún, espera unos segundos');}" style="position:fixed;bottom:14px;right:14px;z-index:99999;background:#2DDFA1;color:#000;border:0;width:42px;height:42px;border-radius:50%;font-size:18px;cursor:pointer;box-shadow:0 4px 12px rgba(0,0,0,0.4);font-weight:700;display:flex;align-items:center;justify-content:center;" title="Abrir diagnóstico">🐛</button>
+<!-- ═══ BOTÓN FLOTANTE DE DIAGNÓSTICO TEMPORAL — POSICIÓN MUY VISIBLE ═══ -->
+<button id="rsvBtnDiag" onclick="if(typeof mostrarDiag==='function'){mostrarDiag();}else{alert('Diag no cargado aún, espera 3 segundos y vuelve a pulsar');}" style="position:fixed;top:80px;right:14px;z-index:2147483647;background:#FF0080;color:#fff;border:3px solid #fff;width:62px;height:62px;border-radius:50%;font-size:26px;cursor:pointer;box-shadow:0 4px 20px rgba(255,0,128,0.6);font-weight:700;display:flex;align-items:center;justify-content:center;animation:rsvDiagBlink 1s ease-in-out infinite;" title="Abrir diagnóstico">🐛</button>
+<style>@keyframes rsvDiagBlink{0%,100%{transform:scale(1);}50%{transform:scale(1.15);}}</style>
 
 </body>
 </html>
