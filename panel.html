@@ -1820,13 +1820,15 @@ input[type="date"].input-date:not(:focus)::-webkit-datetime-edit {
    OCUPACIÓN POR HORA (dashboard) — barras horizontales
    ============================================================================ */
 .ocup-list { display: flex; flex-direction: column; gap: 4px; padding: 4px 6px; height: 100%; justify-content: space-between; }
-.ocup-row { display: grid; grid-template-columns: 50px 1fr 60px; gap: 10px; align-items: center; flex: 1; min-height: 0; }
+.ocup-row { display: grid; grid-template-columns: 50px 1fr 78px; gap: 10px; align-items: center; flex: 1; min-height: 0; }
 .ocup-time { font-family: var(--font-mono); font-size: 12px; font-weight: 600; color: var(--text-muted); }
 .ocup-bar { position: relative; height: 8px; background: var(--surface); border-radius: 100px; overflow: hidden; }
 .ocup-bar > i { display: block; height: 100%; background: linear-gradient(90deg, var(--brand), var(--brand-hover)); border-radius: inherit; transition: width 0.4s var(--ease-out); }
 .ocup-row.med .ocup-bar > i { background: linear-gradient(90deg, var(--warning), #FF9D2E); }
 .ocup-row.full .ocup-bar > i { background: linear-gradient(90deg, var(--danger), #FF3B5F); }
-.ocup-val { font-family: var(--font-mono); font-size: 11.5px; color: var(--text-subtle); text-align: right; }
+.ocup-row.blocked .ocup-bar > i { background: linear-gradient(90deg, var(--text-subtle), var(--text-muted)); opacity: 0.5; }
+.ocup-val { font-family: var(--font-mono); font-size: 11.5px; color: var(--text-subtle); text-align: right; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.ocup-val.blocked-val { color: var(--text-muted); font-weight: 600; font-size: 10.5px; letter-spacing: 0.02em; text-transform: uppercase; }
 
 /* ============================================================================
    INTENT LIST (motivos de llamada/wa)
@@ -12183,6 +12185,43 @@ function enterDemoMode(label){
   // ya cargó), la llamamos directamente. Si no, dejamos el cliente en
   // window._reservasPendientes para que el script tardío lo procese.
   if (cliente) {
+    // ─── DETECTAR CAMBIO DE CUENTA ────────────────────────────────────
+    // Si en este navegador hubo previamente otra cuenta logueada (ej. demo),
+    // las listas globales en memoria (window._reservasTodas, _llamadasTodas,
+    // _waCache, _transferenciasTodas) pueden contener datos de esa cuenta.
+    // Cuando cargamos un cliente con email distinto al previo, reseteamos
+    // todo en memoria + localStorage para que NO se mezclen los datos.
+    try {
+      const KEY_ULTIMA_CUENTA = 'reservea_ultima_cuenta_email';
+      const emailNuevo = (cliente.email || '').toLowerCase();
+      const emailPrevio = (localStorage.getItem(KEY_ULTIMA_CUENTA) || '').toLowerCase();
+      if (emailPrevio && emailNuevo && emailPrevio !== emailNuevo) {
+        console.warn('[Reservea] Cambio de cuenta detectado:', emailPrevio, '→', emailNuevo, '. Limpiando listas globales y cache.');
+        // Resetear listas globales en memoria
+        window._reservasTodas = [];
+        window._llamadasTodas = [];
+        window._transferenciasTodas = [];
+        if (window._waCache) {
+          window._waCache.convPorTel = {};
+          window._waCache.activas = [];
+        }
+        // Limpiar localStorage de la cuenta anterior (todas las keys reservea_*)
+        const keysAEliminar = [];
+        for (let i = 0; i < localStorage.length; i++) {
+          const k = localStorage.key(i);
+          if (k && k.startsWith('reservea_') && k !== KEY_ULTIMA_CUENTA) {
+            keysAEliminar.push(k);
+          }
+        }
+        keysAEliminar.forEach(k => localStorage.removeItem(k));
+        console.log('[Reservea] Limpiadas', keysAEliminar.length, 'keys de localStorage de la cuenta anterior');
+      }
+      // Guardar la cuenta actual para futuras detecciones
+      if (emailNuevo) localStorage.setItem(KEY_ULTIMA_CUENTA, emailNuevo);
+    } catch (e) {
+      console.warn('[Reservea] Error detectando cambio de cuenta:', e);
+    }
+
     // ─── Modo DEMO: mostrar banner si la cuenta está en revisión / trial ───
     window.reservea = window.reservea || {};
     window.reservea.cliente = cliente;
@@ -20543,12 +20582,14 @@ function bindUI(){
       const bloqueado = !!s.nota_bloqueo;
       const pct = cap > 0 ? Math.min(100, Math.round((ocu / cap) * 100)) : 0;
       let rowCls = '';
-      if (bloqueado) rowCls = 'full';
+      if (bloqueado) rowCls = 'blocked';
       else if (pct >= 95) rowCls = 'full';
       else if (pct >= 40) rowCls = 'med';
       const horaCorta = (s.hora || '').slice(0, 5);
-      const valor = bloqueado ? '🔒 cerrado' : `${ocu}/${cap}`;
-      html += `<div class="ocup-row ${rowCls}"><span class="ocup-time">${_escapeHtml(horaCorta)}</span><div class="ocup-bar"><i style="width:${bloqueado ? 100 : pct}%"></i></div><span class="ocup-val">${_escapeHtml(valor)}</span></div>`;
+      const valor = bloqueado
+        ? `<span class="ocup-val blocked-val" title="${_escapeHtml(s.nota_bloqueo)}">🔒 Cerrado</span>`
+        : `<span class="ocup-val">${ocu}/${cap}</span>`;
+      html += `<div class="ocup-row ${rowCls}"><span class="ocup-time">${_escapeHtml(horaCorta)}</span><div class="ocup-bar"><i style="width:${bloqueado ? 100 : pct}%"></i></div>${valor}</div>`;
     });
     list.innerHTML = html;
   }
