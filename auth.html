@@ -1,0 +1,1086 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0,viewport-fit=cover">
+<meta name="theme-color" content="#0a0e1a">
+<title>Reservea — Acceso al panel</title>
+<meta name="description" content="Inicia sesión en tu panel Reservea o crea tu cuenta gratis.">
+<meta name="robots" content="noindex,nofollow">
+
+<link rel="icon" href="favicon.ico" type="image/x-icon">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+<style>
+/* ═══════════════════════════════════════════════════════════════════════════
+   RESERVEA AUTH — design tokens (matched to landing reservea.es)
+   ═══════════════════════════════════════════════════════════════════════════ */
+:root{
+  --brand:#2DDFA1;
+  --brand-2:#1FB37F;
+  --brand-soft:rgba(45,223,161,0.10);
+  --brand-soft-strong:rgba(45,223,161,0.18);
+  --brand-border:rgba(45,223,161,0.32);
+  --brand-glow:rgba(45,223,161,0.42);
+
+  --bg:#0a0e1a;
+  --bg-elev:#0f1422;
+  --surface:#131a2a;
+  --surface-hover:#1a2236;
+  --card-bg:rgba(15,20,34,0.72);
+
+  --border:rgba(255,255,255,0.08);
+  --border-strong:rgba(255,255,255,0.14);
+  --border-emphasis:rgba(255,255,255,0.22);
+
+  --text:#fff;
+  --text-muted:rgba(255,255,255,0.78);
+  --text-subtle:rgba(255,255,255,0.54);
+  --text-disabled:rgba(255,255,255,0.32);
+
+  --danger:#FF4B4B;
+  --danger-soft:rgba(255,75,75,0.10);
+  --warning:#FFB547;
+  --info:#6FB9FF;
+
+  --r-sm:6px; --r-md:10px; --r-lg:14px; --r-xl:20px;
+  --ease-out:cubic-bezier(0.16,1,0.3,1);
+}
+
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+
+html,body{
+  height:100%;
+  width:100%;
+}
+
+body{
+  font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+  font-size:14px;
+  background:var(--bg);
+  color:var(--text);
+  -webkit-font-smoothing:antialiased;
+  -moz-osx-font-smoothing:grayscale;
+  font-feature-settings:'cv11','ss03','ss01';
+  letter-spacing:-0.005em;
+  overflow-x:hidden;
+  /* Garantiza centrado */
+  display:flex;
+  flex-direction:column;
+  min-height:100vh;
+  min-height:100dvh;
+}
+
+/* ═══ Background (matching landing — orbs + grid + mesh) ═══ */
+.bg-layer{
+  position:fixed;
+  inset:0;
+  z-index:0;
+  pointer-events:none;
+  overflow:hidden;
+}
+.bg-orb{
+  position:absolute;
+  border-radius:50%;
+  filter:blur(120px);
+  pointer-events:none;
+}
+.bg-orb--1{
+  width:680px; height:680px;
+  background:radial-gradient(circle, var(--brand-soft-strong) 0%, transparent 70%);
+  top:-280px; right:-180px;
+  opacity:0.7;
+}
+.bg-orb--2{
+  width:560px; height:560px;
+  background:radial-gradient(circle, rgba(111,185,255,0.10) 0%, transparent 70%);
+  bottom:-260px; left:-140px;
+  opacity:0.6;
+}
+.bg-grid{
+  position:absolute; inset:0;
+  background-image:
+    linear-gradient(rgba(255,255,255,0.022) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,0.022) 1px, transparent 1px);
+  background-size:56px 56px;
+  mask-image:radial-gradient(ellipse 80% 60% at 50% 30%, #000 30%, transparent 78%);
+  -webkit-mask-image:radial-gradient(ellipse 80% 60% at 50% 30%, #000 30%, transparent 78%);
+}
+
+/* ═══ Layout (centered always) ═══ */
+.layout{
+  position:relative;
+  z-index:1;
+  flex:1 1 auto;
+  width:100%;
+  display:flex;
+  flex-direction:column;
+}
+
+.topbar{
+  flex-shrink:0;
+  /* Mismo padding arriba y abajo para que el espacio del logo al top y del
+     logo a la caja sea idéntico */
+  padding:40px 28px 32px 28px;
+  width:100%;
+  display:flex;
+  align-items:center;
+  justify-content:center;  /* logo centrado horizontalmente */
+}
+@media (max-width:520px){
+  .topbar{ padding:28px 18px 24px 18px }
+}
+
+.brand-link{
+  display:inline-flex;
+  align-items:center;
+  gap:10px;
+  text-decoration:none;
+  transition:opacity 0.18s var(--ease-out);
+}
+.brand-link:hover{opacity:0.78}
+.brand-mark{
+  width:38px; height:38px;
+  border-radius:10px;
+  background:linear-gradient(135deg, var(--brand) 0%, var(--brand-2) 100%);
+  display:inline-grid; place-items:center;
+  box-shadow:0 6px 16px -4px var(--brand-glow), inset 0 1px 0 rgba(255,255,255,0.20);
+  flex-shrink:0;
+}
+.brand-mark svg{ width:22px; height:22px; color:#0a0e1a }
+.brand-link svg.brand-wordmark{
+  height:16px; width:auto;
+  color:rgba(255,255,255,0.92);
+}
+
+/* Main content area — perfect centering */
+.center-stage{
+  flex:1 1 auto;
+  display:flex;
+  align-items:flex-start;     /* alinear arriba para que el espaciado lo controle topbar */
+  justify-content:center;
+  padding:0 20px 60px;
+  width:100%;
+  min-height:0;
+}
+@media (max-width:520px){
+  .center-stage{ padding:0 16px 48px }
+}
+
+.auth-shell{
+  width:100%;
+  max-width:440px;
+  display:flex;
+  flex-direction:column;
+  align-items:stretch;
+}
+.auth-shell--wide{ max-width:520px }
+
+.card{
+  background:var(--card-bg);
+  backdrop-filter:blur(28px) saturate(140%);
+  -webkit-backdrop-filter:blur(28px) saturate(140%);
+  border:1px solid var(--border);
+  border-radius:var(--r-xl);
+  padding:36px 36px 28px;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.04),
+    0 24px 64px -16px rgba(0,0,0,0.7),
+    0 8px 24px -8px rgba(0,0,0,0.4);
+  animation:cardIn 0.5s var(--ease-out);
+}
+@keyframes cardIn{
+  from{ opacity:0; transform:translateY(14px) scale(0.985); filter:blur(4px) }
+  to  { opacity:1; transform:none; filter:none }
+}
+@media (max-width:520px){
+  .card{ padding:28px 22px 22px; border-radius:var(--r-lg) }
+}
+
+/* Headings */
+.eyebrow{
+  display:inline-flex;
+  align-items:center;
+  gap:6px;
+  font-size:11px;
+  font-weight:700;
+  letter-spacing:0.14em;
+  text-transform:uppercase;
+  color:var(--brand);
+  background:var(--brand-soft);
+  border:1px solid var(--brand-border);
+  padding:5px 11px;
+  border-radius:100px;
+  margin-bottom:18px;
+}
+.title{
+  font-size:28px;
+  font-weight:700;
+  letter-spacing:-0.026em;
+  line-height:1.18;
+  color:var(--text);
+  margin-bottom:8px;
+}
+.title em{
+  font-family:'Instrument Serif', serif;
+  font-style:italic;
+  font-weight:400;
+  color:var(--brand);
+}
+.subtitle{
+  font-size:14.5px;
+  color:var(--text-subtle);
+  line-height:1.55;
+  margin-bottom:26px;
+  max-width:380px;
+}
+@media (max-width:520px){
+  .title{ font-size:24px }
+  .subtitle{ font-size:14px; margin-bottom:22px }
+}
+
+/* Forms */
+.field{
+  display:flex;
+  flex-direction:column;
+  gap:7px;
+  margin-bottom:14px;
+}
+.field-label{
+  font-size:12.5px;
+  font-weight:600;
+  color:var(--text-muted);
+  letter-spacing:-0.005em;
+}
+.field-row{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:10px;
+}
+@media (max-width:480px){
+  .field-row{ grid-template-columns:1fr; gap:0 }
+}
+
+.input, .select{
+  width:100%;
+  height:46px;
+  padding:0 14px;
+  background:rgba(255,255,255,0.025);
+  border:1px solid var(--border);
+  border-radius:var(--r-md);
+  color:var(--text);
+  font-family:inherit;
+  font-size:14px;
+  outline:none;
+  transition:background 0.15s, border-color 0.18s, box-shadow 0.18s;
+  letter-spacing:-0.005em;
+}
+.input::placeholder{ color:var(--text-disabled) }
+.input:hover, .select:hover{
+  border-color:var(--border-strong);
+  background:rgba(255,255,255,0.04);
+}
+.input:focus, .select:focus{
+  border-color:var(--brand);
+  background:rgba(45,223,161,0.04);
+  box-shadow:0 0 0 4px rgba(45,223,161,0.10);
+}
+.select{
+  appearance:none;
+  -webkit-appearance:none;
+  background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6' fill='none'><path d='M1 1l4 4 4-4' stroke='%23ffffff80' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'/></svg>");
+  background-repeat:no-repeat;
+  background-position:right 14px center;
+  padding-right:36px;
+  cursor:pointer;
+}
+
+.input-pwd-wrap{ position:relative }
+.input-pwd-toggle{
+  position:absolute;
+  right:6px; top:50%;
+  transform:translateY(-50%);
+  width:34px; height:34px;
+  background:transparent;
+  border:none;
+  color:var(--text-subtle);
+  cursor:pointer;
+  border-radius:7px;
+  display:inline-grid; place-items:center;
+  transition:color 0.15s, background 0.15s;
+}
+.input-pwd-toggle:hover{ color:var(--text); background:rgba(255,255,255,0.05) }
+.input-pwd-toggle svg{ width:16px; height:16px }
+
+.field-hint{
+  font-size:11.5px;
+  color:var(--text-subtle);
+  margin-top:1px;
+  line-height:1.4;
+}
+.field-error{
+  font-size:12px;
+  color:var(--danger);
+  margin-top:2px;
+  display:none;
+  font-weight:500;
+}
+.field.has-error .input,
+.field.has-error .select{
+  border-color:var(--danger);
+  background:rgba(255,75,75,0.04);
+  box-shadow:0 0 0 4px rgba(255,75,75,0.06);
+}
+.field.has-error .field-error{ display:block }
+
+/* Buttons */
+.btn{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  gap:8px;
+  height:46px;
+  padding:0 18px;
+  border-radius:var(--r-md);
+  font-family:inherit;
+  font-size:14px;
+  font-weight:600;
+  letter-spacing:-0.005em;
+  border:1px solid transparent;
+  cursor:pointer;
+  text-decoration:none;
+  white-space:nowrap;
+  transition:transform 0.18s var(--ease-out), box-shadow 0.18s var(--ease-out), background 0.15s, border-color 0.15s, color 0.15s;
+  position:relative;
+  outline:none;
+  user-select:none;
+}
+.btn:focus-visible{ box-shadow:0 0 0 3px rgba(45,223,161,0.32) }
+
+.btn--primary{
+  background:linear-gradient(135deg, var(--brand) 0%, var(--brand-2) 100%);
+  color:#0a0e1a;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.26),
+    0 8px 18px -4px var(--brand-glow);
+}
+.btn--primary:hover{
+  transform:translateY(-1px);
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.32),
+    0 12px 26px -4px var(--brand-glow);
+}
+.btn--primary:active{ transform:translateY(0) }
+
+.btn--ghost{
+  background:transparent;
+  color:var(--text);
+  border-color:var(--border-strong);
+}
+.btn--ghost:hover{
+  background:rgba(255,255,255,0.04);
+  border-color:var(--border-emphasis);
+}
+
+.btn--block{ width:100%; padding:0 22px }
+.btn--lg{ height:50px; font-size:14.5px }
+.btn[disabled]{ opacity:0.6; cursor:not-allowed; pointer-events:none }
+
+.btn-spinner{
+  display:none;
+  width:16px; height:16px;
+  border:2px solid rgba(10,14,26,0.22);
+  border-top-color:#0a0e1a;
+  border-radius:50%;
+  animation:spin 0.65s linear infinite;
+}
+.btn--primary.loading .btn-spinner{ display:inline-block }
+.btn--primary.loading .btn-text{ opacity:0.45 }
+@keyframes spin{ to{ transform:rotate(360deg) } }
+
+/* Google */
+.btn--google{
+  background:#fff;
+  color:#1f1f1f;
+  border:1px solid #fff;
+  font-weight:500;
+  letter-spacing:-0.01em;
+}
+.btn--google:hover{
+  background:#f4f4f4;
+  border-color:#f4f4f4;
+  transform:translateY(-1px);
+  box-shadow:0 8px 20px -4px rgba(0,0,0,0.4);
+}
+.btn--google svg{ width:18px; height:18px; flex-shrink:0 }
+
+/* Divider */
+.divider{
+  display:flex;
+  align-items:center;
+  gap:12px;
+  margin:18px 0;
+  color:var(--text-subtle);
+  font-size:12px;
+  letter-spacing:-0.005em;
+}
+.divider::before,
+.divider::after{
+  content:''; flex:1; height:1px;
+  background:linear-gradient(90deg, transparent, var(--border-strong), transparent);
+}
+
+/* Helper rows */
+.row-between{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  margin-bottom:18px;
+  flex-wrap:wrap;
+  gap:8px;
+}
+.checkbox{
+  display:inline-flex;
+  align-items:center;
+  gap:8px;
+  font-size:13px;
+  color:var(--text-muted);
+  cursor:pointer;
+  user-select:none;
+}
+.checkbox input{
+  appearance:none;
+  -webkit-appearance:none;
+  width:16px; height:16px;
+  border:1.5px solid var(--border-strong);
+  border-radius:4px;
+  background:transparent;
+  cursor:pointer;
+  position:relative;
+  transition:background 0.15s, border-color 0.15s;
+  flex-shrink:0;
+}
+.checkbox input:checked{ background:var(--brand); border-color:var(--brand) }
+.checkbox input:checked::after{
+  content:'';
+  position:absolute;
+  left:4px; top:1px;
+  width:4px; height:8px;
+  border:solid #0a0e1a;
+  border-width:0 2px 2px 0;
+  transform:rotate(45deg);
+}
+.link{
+  color:var(--brand);
+  text-decoration:none;
+  font-weight:500;
+  transition:opacity 0.15s;
+}
+.link:hover{ opacity:0.78; text-decoration:underline }
+
+.foot-text{
+  text-align:center;
+  margin-top:22px;
+  padding-top:22px;
+  border-top:1px solid var(--border);
+  font-size:13.5px;
+  color:var(--text-subtle);
+}
+.foot-text a{ color:var(--brand); font-weight:500 }
+
+.legal-text{
+  text-align:center;
+  margin-top:18px;
+  font-size:11.5px;
+  color:var(--text-disabled);
+  line-height:1.5;
+  letter-spacing:-0.005em;
+}
+.legal-text a{
+  color:var(--text-subtle);
+  text-decoration:none;
+  border-bottom:1px solid transparent;
+  transition:border-color 0.15s, color 0.15s;
+}
+.legal-text a:hover{
+  color:var(--text-muted);
+  border-bottom-color:var(--text-subtle);
+}
+
+/* ═══ Status screens (verify, reset-sent) ═══ */
+.status-icon{
+  width:64px; height:64px;
+  border-radius:50%;
+  display:grid; place-items:center;
+  margin:0 auto 22px;
+}
+.status-icon--success{
+  background:var(--brand-soft);
+  border:1px solid var(--brand-border);
+  color:var(--brand);
+}
+.status-icon--info{
+  background:rgba(111,185,255,0.10);
+  border:1px solid rgba(111,185,255,0.32);
+  color:var(--info);
+}
+.status-icon svg{ width:30px; height:30px }
+
+.status-card{ text-align:center }
+.status-card .title{ margin-bottom:12px }
+.status-card .subtitle{ margin-bottom:22px; margin-left:auto; margin-right:auto }
+
+.status-detail{
+  background:rgba(255,255,255,0.03);
+  border:1px solid var(--border);
+  border-radius:var(--r-md);
+  padding:14px 16px;
+  font-size:13px;
+  color:var(--text-muted);
+  margin-bottom:22px;
+  text-align:left;
+  line-height:1.5;
+}
+.status-detail strong{
+  color:var(--text);
+  font-weight:600;
+  font-family:'JetBrains Mono', monospace;
+  font-size:12.5px;
+}
+
+.status-actions{
+  display:flex;
+  flex-direction:column;
+  gap:10px;
+}
+
+/* Toast */
+.toast-host{
+  position:fixed;
+  top:20px; left:50%;
+  transform:translateX(-50%);
+  z-index:9999;
+  display:flex; flex-direction:column; gap:8px;
+  pointer-events:none;
+  width:max-content;
+  max-width:calc(100vw - 32px);
+}
+.toast{
+  pointer-events:auto;
+  background:var(--surface);
+  border:1px solid var(--border-strong);
+  border-radius:var(--r-md);
+  padding:12px 16px;
+  display:inline-flex; align-items:center; gap:10px;
+  font-size:13.5px; color:var(--text);
+  box-shadow:0 16px 40px -8px rgba(0,0,0,0.7);
+  min-width:280px;
+  animation:toastIn 0.25s var(--ease-out);
+}
+.toast--error{
+  border-color:rgba(255,75,75,0.45);
+  background:linear-gradient(180deg, rgba(255,75,75,0.06) 0%, var(--surface) 100%);
+}
+.toast--success{
+  border-color:var(--brand-border);
+  background:linear-gradient(180deg, var(--brand-soft) 0%, var(--surface) 100%);
+}
+.toast .toast-icon{ width:18px; height:18px; flex-shrink:0 }
+.toast--error .toast-icon{ color:var(--danger) }
+.toast--success .toast-icon{ color:var(--brand) }
+@keyframes toastIn{
+  from{ opacity:0; transform:translateY(-12px) }
+  to  { opacity:1; transform:none }
+}
+
+/* Screen routing */
+.screen{ display:none }
+.screen.active{ display:block }
+
+/* Trust footer at bottom */
+.bottom-strip{
+  flex-shrink:0;
+  text-align:center;
+  padding:18px 20px 28px;
+  font-size:12px;
+  color:var(--text-disabled);
+  letter-spacing:-0.005em;
+}
+.bottom-strip a{ color:var(--text-subtle); text-decoration:none }
+.bottom-strip a:hover{ color:var(--text-muted) }
+.bottom-sep{ margin:0 8px; color:var(--text-disabled) }
+</style>
+</head>
+<body>
+
+<!-- Background decoration -->
+<div class="bg-layer" aria-hidden="true">
+  <div class="bg-orb bg-orb--1"></div>
+  <div class="bg-orb bg-orb--2"></div>
+  <div class="bg-grid"></div>
+</div>
+
+<!-- Toast container -->
+<div class="toast-host" id="toastHost"></div>
+
+<div class="layout">
+
+  <!-- Topbar -->
+  <header class="topbar">
+    <a href="https://reservea.es" class="brand-link" aria-label="Volver a reservea.es">
+      <span class="brand-mark">
+        <svg viewBox="0 0 100 100" fill="none" aria-hidden="true">
+          <path d="M5.41 2.70L67.12 2.70L67.57 3.15L70.72 3.15L71.17 3.60L72.52 3.60L72.97 4.05L74.32 4.05L74.77 4.50L75.68 4.50L76.13 4.95L78.38 5.41L80.63 6.76L81.53 6.76L81.98 7.21L83.33 7.66L84.23 8.56L84.68 8.56L85.59 9.46L86.04 9.46L87.84 11.26L88.29 11.26L90.09 13.06L90.09 13.51L90.99 14.41L91.44 14.41L91.89 15.77L93.24 17.12L94.14 19.37L95.05 20.27L95.05 21.17L95.50 21.62L95.50 22.52L95.95 22.97L95.95 23.87L96.40 24.32L96.40 25.68L96.85 26.13L96.85 29.28L97.30 29.73L97.30 33.78L96.85 34.23L96.85 37.39L96.40 37.84L96.40 39.19L95.95 39.64L95.95 40.54L95.50 40.99L95.50 42.34L95.05 42.79L95.05 43.69L94.59 44.14L93.24 47.30L91.89 48.65L91.44 50.00L89.64 51.80L89.64 52.25L85.14 56.76L84.68 56.76L81.98 59.01L80.63 59.46L79.73 60.36L79.28 60.36L75.23 62.61L74.32 62.61L73.87 63.06L72.97 63.06L72.52 63.51L71.62 63.51L71.17 63.96L70.72 63.96L70.27 64.41L70.27 65.32L71.62 66.67L72.07 66.67L72.07 67.12L73.42 68.47L73.87 68.47L74.32 68.92L74.32 69.37L75.23 70.27L75.68 70.27L76.13 70.72L76.13 71.17L77.03 72.07L77.48 72.07L95.05 89.64L95.50 89.64L95.50 90.09L96.85 91.44L97.30 91.44L97.30 91.89L98.65 93.69L98.65 94.59L97.30 96.40L96.85 96.40L96.40 96.85L75.68 96.85L75.23 96.40L74.32 96.40L73.87 95.95L72.52 95.95L72.07 95.50L71.17 95.50L70.72 95.05L70.27 95.05L69.37 94.14L68.92 94.14L68.02 93.24L67.57 93.24L62.16 87.84L62.16 87.39L56.76 81.98L56.76 81.53L55.41 80.18L54.95 80.18L54.95 79.73L50.90 75.68L50.90 75.23L50.00 74.32L49.55 74.32L49.55 73.87L45.05 69.37L45.05 68.92L42.79 66.67L31.53 66.67L31.08 67.12L31.08 68.02L30.63 68.47L30.63 70.27L30.18 70.72L30.18 72.52L29.73 72.97L29.73 73.87L29.28 74.32L29.28 75.68L28.83 76.13L28.83 77.03L28.38 77.48L28.38 79.28L27.93 79.73L27.93 81.53L27.48 81.98L27.48 82.88L27.03 83.33L27.03 84.23L26.58 84.68L26.58 86.49L26.13 86.94L26.13 88.74L25.68 89.19L25.68 90.09L25.23 90.54L25.23 91.44L24.77 91.89L24.77 92.79L24.32 93.24L24.32 93.69L22.07 95.95L21.62 95.95L21.17 96.40L20.27 96.40L19.82 96.85L3.15 96.85L2.70 96.40L2.25 96.40L0.90 95.05L0.90 91.89L1.35 91.44L1.35 89.19L1.80 88.74L1.80 87.39L2.25 86.94L2.25 86.04L2.70 85.59L2.70 84.23L3.15 83.78L3.15 81.98L3.60 81.53L3.60 80.18L4.05 79.73L4.05 78.83L4.50 78.38L4.50 77.03L4.95 76.58L4.95 74.77L5.41 74.32L5.41 72.97L5.86 72.52L5.86 71.62L6.31 71.17L6.31 69.82L6.76 69.37L6.76 68.02L7.21 67.57L7.21 65.77L7.66 65.32L7.66 64.41L8.11 63.96L8.11 62.61L8.56 62.16L8.56 60.81L9.01 60.36L9.01 58.56L9.46 58.11L9.46 56.76L10.36 55.41L10.36 54.05L10.81 53.60L10.81 51.35L11.26 50.90L11.26 49.55L11.71 49.10L11.71 48.20L12.16 47.75L12.16 46.85L12.61 46.40L12.61 44.59L13.06 44.14L13.06 42.79L13.51 42.34L13.51 40.99L13.96 40.54L13.96 39.64L14.41 39.19L14.41 37.84L14.86 37.39L14.86 35.59L15.32 35.14L15.32 34.23L15.77 33.78L16.67 31.53L18.02 30.18L18.47 30.18L19.37 29.28L19.82 29.28L20.27 28.83L21.17 28.83L21.62 28.38L39.19 28.38L40.09 29.28L40.09 31.98L39.64 32.43L39.64 34.68L39.19 35.14L39.19 36.04L38.74 36.49L38.74 37.84L38.29 38.29L38.29 39.64L37.84 40.09L37.84 41.89L37.39 42.34L37.39 43.24L36.94 43.69L36.94 45.05L36.49 45.50L36.49 46.85L36.04 47.30L36.04 49.10L35.59 49.55L36.04 50.00L58.56 50.00L59.01 49.55L61.26 49.55L61.71 49.10L63.06 49.10L64.41 48.20L65.32 48.20L65.77 47.75L68.02 46.85L69.37 45.50L69.82 45.50L72.52 42.79L72.52 42.34L73.87 40.99L73.87 40.54L74.32 40.09L74.32 39.19L74.77 38.74L74.77 37.84L75.23 37.39L75.23 36.49L75.68 36.04L75.68 33.33L76.13 32.88L75.68 32.43L75.68 29.73L75.23 29.28L75.23 28.38L74.32 27.03L74.32 26.13L73.42 25.23L73.42 24.77L71.17 22.52L70.72 22.52L69.82 21.62L69.37 21.62L68.02 20.72L67.12 20.72L65.77 19.82L64.41 19.82L63.96 19.37L62.61 19.37L62.16 18.92L19.82 18.92L19.37 18.47L17.12 18.47L16.67 18.02L14.41 17.57L13.06 16.67L12.16 16.67L11.26 15.77L10.81 15.77L9.91 14.86L9.46 14.86L6.76 12.16L6.76 11.71L5.41 10.36L5.41 9.91L4.95 9.46L4.95 8.56L4.50 8.11L4.50 7.21L4.05 6.76L4.05 4.50L5.41 2.70Z" fill="currentColor"/>
+        </svg>
+      </span>
+      <svg class="brand-wordmark" viewBox="0 0 731 100" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <path d="M50.00 3.75L57.50 3.75L60.00 5.00L60.00 23.75L46.25 23.75L45.00 25.00L42.50 25.00L35.00 28.75L28.75 35.00L26.25 40.00L26.25 42.50L25.00 43.75L25.00 93.75L3.75 93.75L3.75 6.25L5.00 5.00L21.25 5.00L22.50 6.25L25.00 6.25L25.00 16.25L23.75 17.50L26.25 20.00L27.50 20.00L36.25 10.00L37.50 10.00L42.50 6.25L45.00 6.25L50.00 3.75ZM111.25 3.75L125.00 3.75L126.25 5.00L135.00 6.25L145.00 11.25L151.25 17.50L151.25 18.75L155.00 22.50L157.50 27.50L157.50 30.00L160.00 35.00L160.00 41.25L161.25 42.50L161.25 52.50L160.00 53.75L93.75 53.75L92.50 55.00L92.50 61.25L95.00 66.25L103.75 75.00L108.75 76.25L112.50 78.75L126.25 78.75L130.00 76.25L135.00 75.00L142.50 68.75L143.75 68.75L148.75 72.50L148.75 73.75L155.00 80.00L155.00 81.25L147.50 87.50L143.75 88.75L141.25 91.25L137.50 91.25L136.25 92.50L133.75 92.50L132.50 93.75L127.50 93.75L126.25 95.00L111.25 95.00L110.00 93.75L103.75 93.75L102.50 92.50L96.25 91.25L91.25 88.75L87.50 85.00L86.25 85.00L76.25 75.00L76.25 73.75L72.50 68.75L71.25 61.25L70.00 60.00L70.00 40.00L71.25 38.75L71.25 35.00L72.50 33.75L73.75 27.50L76.25 25.00L78.75 20.00L86.25 12.50L90.00 11.25L95.00 7.50L102.50 6.25L103.75 5.00L110.00 5.00L111.25 3.75ZM108.75 20.00L125.00 20.00L132.50 23.75L137.50 31.25L137.50 33.75L138.75 35.00L138.75 40.00L115.00 40.00L113.75 41.25L112.50 40.00L93.75 40.00L92.50 38.75L93.75 37.50L93.75 35.00L98.75 26.25L101.25 23.75L108.75 20.00ZM202.50 3.75L220.00 3.75L221.25 5.00L226.25 5.00L227.50 6.25L237.50 8.75L242.50 11.25L245.00 13.75L245.00 16.25L241.25 20.00L241.25 21.25L237.50 26.25L235.00 26.25L220.00 18.75L203.75 18.75L202.50 20.00L200.00 20.00L196.25 23.75L196.25 26.25L195.00 27.50L196.25 31.25L203.75 37.50L206.25 37.50L207.50 38.75L210.00 38.75L211.25 40.00L213.75 40.00L215.00 41.25L217.50 41.25L222.50 43.75L226.25 43.75L233.75 47.50L236.25 47.50L240.00 51.25L241.25 51.25L241.25 52.50L246.25 58.75L246.25 62.50L247.50 63.75L247.50 72.50L246.25 73.75L245.00 80.00L236.25 88.75L231.25 91.25L228.75 91.25L225.00 93.75L217.50 93.75L216.25 95.00L203.75 95.00L202.50 93.75L193.75 93.75L192.50 92.50L186.25 91.25L176.25 86.25L171.25 82.50L171.25 80.00L178.75 70.00L181.25 70.00L186.25 72.50L188.75 75.00L193.75 76.25L197.50 78.75L201.25 78.75L202.50 80.00L208.75 80.00L210.00 81.25L220.00 78.75L225.00 73.75L226.25 71.25L225.00 66.25L220.00 61.25L215.00 60.00L213.75 58.75L211.25 58.75L210.00 57.50L206.25 57.50L201.25 55.00L197.50 55.00L190.00 51.25L187.50 51.25L180.00 45.00L178.75 45.00L178.75 43.75L175.00 38.75L175.00 35.00L173.75 33.75L173.75 27.50L175.00 26.25L175.00 22.50L177.50 17.50L185.00 10.00L192.50 6.25L196.25 6.25L197.50 5.00L201.25 5.00L202.50 3.75ZM301.25 3.75L312.50 3.75L313.75 5.00L320.00 5.00L321.25 6.25L325.00 6.25L332.50 10.00L342.50 18.75L348.75 31.25L350.00 41.25L351.25 42.50L351.25 52.50L350.00 53.75L282.50 53.75L281.25 55.00L283.75 65.00L293.75 75.00L301.25 78.75L317.50 78.75L321.25 76.25L323.75 76.25L333.75 68.75L345.00 80.00L335.00 88.75L327.50 92.50L325.00 92.50L323.75 93.75L315.00 93.75L313.75 95.00L300.00 95.00L298.75 93.75L293.75 93.75L292.50 92.50L286.25 91.25L281.25 88.75L275.00 83.75L273.75 83.75L263.75 72.50L263.75 70.00L261.25 66.25L260.00 53.75L258.75 52.50L258.75 43.75L260.00 42.50L260.00 37.50L261.25 36.25L261.25 33.75L262.50 32.50L262.50 30.00L265.00 25.00L267.50 22.50L267.50 21.25L276.25 12.50L280.00 11.25L282.50 8.75L287.50 7.50L288.75 6.25L292.50 6.25L293.75 5.00L300.00 5.00L301.25 3.75ZM300.00 20.00L313.75 20.00L315.00 21.25L317.50 21.25L322.50 23.75L327.50 30.00L327.50 32.50L328.75 33.75L328.75 40.00L283.75 40.00L282.50 37.50L287.50 27.50L291.25 23.75L296.25 21.25L298.75 21.25L300.00 20.00ZM413.75 3.75L422.50 3.75L423.75 5.00L423.75 23.75L410.00 23.75L408.75 25.00L406.25 25.00L401.25 28.75L397.50 30.00L393.75 33.75L392.50 37.50L390.00 40.00L390.00 42.50L388.75 43.75L388.75 93.75L367.50 93.75L367.50 6.25L387.50 6.25L387.50 8.75L388.75 10.00L388.75 18.75L391.25 20.00L401.25 8.75L408.75 5.00L412.50 5.00L413.75 3.75ZM578.75 3.75L592.50 3.75L593.75 5.00L598.75 5.00L600.00 6.25L602.50 6.25L603.75 7.50L608.75 8.75L611.25 11.25L612.50 11.25L621.25 20.00L627.50 32.50L627.50 36.25L628.75 37.50L628.75 53.75L562.50 53.75L560.00 56.25L561.25 57.50L561.25 62.50L563.75 65.00L565.00 68.75L572.50 75.00L577.50 76.25L581.25 78.75L595.00 78.75L598.75 76.25L603.75 75.00L611.25 68.75L612.50 68.75L623.75 80.00L623.75 81.25L622.50 81.25L613.75 88.75L608.75 91.25L606.25 91.25L602.50 93.75L596.25 93.75L595.00 95.00L580.00 95.00L578.75 93.75L571.25 93.75L567.50 91.25L565.00 91.25L560.00 88.75L553.75 83.75L552.50 83.75L543.75 73.75L540.00 66.25L540.00 61.25L538.75 60.00L538.75 38.75L540.00 37.50L540.00 33.75L541.25 32.50L541.25 30.00L543.75 25.00L547.50 21.25L547.50 20.00L558.75 10.00L563.75 7.50L566.25 7.50L567.50 6.25L577.50 5.00L578.75 3.75ZM577.50 20.00L592.50 20.00L593.75 21.25L598.75 22.50L606.25 31.25L607.50 38.75L606.25 40.00L562.50 40.00L561.25 37.50L562.50 36.25L562.50 33.75L565.00 28.75L570.00 23.75L577.50 20.00ZM670.00 3.75L693.75 3.75L695.00 5.00L698.75 5.00L700.00 6.25L702.50 6.25L710.00 10.00L713.75 13.75L715.00 13.75L715.00 15.00L718.75 18.75L721.25 23.75L721.25 26.25L722.50 27.50L722.50 32.50L723.75 33.75L723.75 80.00L726.25 81.25L726.25 93.75L710.00 93.75L705.00 91.25L703.75 83.75L702.50 82.50L700.00 82.50L695.00 87.50L683.75 93.75L678.75 93.75L677.50 95.00L665.00 95.00L663.75 93.75L658.75 93.75L655.00 91.25L652.50 91.25L650.00 88.75L648.75 88.75L642.50 81.25L641.25 76.25L640.00 75.00L640.00 61.25L641.25 60.00L642.50 55.00L650.00 47.50L655.00 45.00L657.50 45.00L662.50 42.50L667.50 42.50L668.75 41.25L690.00 41.25L691.25 42.50L697.50 42.50L698.75 43.75L701.25 41.25L701.25 32.50L700.00 31.25L700.00 28.75L693.75 22.50L688.75 20.00L670.00 20.00L668.75 21.25L665.00 21.25L653.75 27.50L651.25 26.25L651.25 25.00L646.25 18.75L645.00 13.75L646.25 13.75L651.25 10.00L653.75 10.00L657.50 7.50L665.00 6.25L670.00 3.75ZM675.00 53.75L693.75 53.75L695.00 55.00L700.00 55.00L700.00 66.25L698.75 67.50L698.75 70.00L692.50 76.25L685.00 80.00L672.50 80.00L667.50 77.50L662.50 71.25L662.50 63.75L666.25 57.50L671.25 55.00L673.75 55.00L675.00 53.75ZM445.00 5.00L460.00 6.25L461.25 11.25L462.50 12.50L462.50 15.00L463.75 16.25L463.75 18.75L467.50 25.00L468.75 31.25L471.25 35.00L471.25 37.50L473.75 41.25L473.75 43.75L478.75 53.75L480.00 60.00L482.50 65.00L485.00 67.50L487.50 67.50L488.75 66.25L488.75 63.75L490.00 62.50L492.50 52.50L498.75 40.00L500.00 33.75L502.50 30.00L503.75 23.75L506.25 20.00L507.50 13.75L511.25 6.25L512.50 5.00L523.75 5.00L525.00 6.25L532.50 6.25L532.50 8.75L528.75 15.00L528.75 17.50L526.25 21.25L526.25 23.75L523.75 27.50L523.75 30.00L516.25 45.00L515.00 51.25L511.25 57.50L511.25 60.00L505.00 72.50L503.75 78.75L498.75 87.50L498.75 91.25L496.25 93.75L473.75 93.75L472.50 92.50L470.00 87.50L470.00 85.00L467.50 81.25L467.50 78.75L465.00 75.00L465.00 72.50L462.50 68.75L462.50 66.25L460.00 62.50L460.00 60.00L455.00 51.25L455.00 48.75L451.25 42.50L451.25 40.00L445.00 28.75L445.00 26.25L442.50 22.50L442.50 18.75L436.25 6.25L443.75 6.25L445.00 5.00Z" fill="currentColor" fill-rule="evenodd"/>
+      </svg>
+    </a>
+  </header>
+
+  <!-- Main centered stage -->
+  <main class="center-stage">
+
+    <!-- ═══ LOGIN ═══ -->
+    <section class="screen active" id="screen-login">
+      <div class="auth-shell">
+        <div class="card">
+          <span class="eyebrow">Acceso al panel</span>
+          <h1 class="title">Bienvenido <em>de nuevo</em></h1>
+          <p class="subtitle">Accede para gestionar tus reservas, llamadas y mensajes desde un único lugar.</p>
+
+          <button type="button" class="btn btn--google btn--block btn--lg" id="btnGoogle">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path fill="#4285f4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34a853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#fbbc05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#ea4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
+            Continuar con Google
+          </button>
+
+          <div class="divider">o con email</div>
+
+          <form id="formLogin" novalidate>
+            <div class="field">
+              <label class="field-label" for="loginEmail">Email</label>
+              <input type="email" class="input" id="loginEmail" name="email" placeholder="tu@empresa.com" required autocomplete="email">
+              <div class="field-error">Introduce un email válido.</div>
+            </div>
+
+            <div class="field">
+              <label class="field-label" for="loginPassword">Contraseña</label>
+              <div class="input-pwd-wrap">
+                <input type="password" class="input" id="loginPassword" name="password" placeholder="••••••••" required autocomplete="current-password">
+                <button type="button" class="input-pwd-toggle" data-pwd-toggle="loginPassword" aria-label="Mostrar contraseña">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                </button>
+              </div>
+              <div class="field-error">La contraseña es obligatoria.</div>
+            </div>
+
+            <div class="row-between">
+              <label class="checkbox">
+                <input type="checkbox" id="rememberMe" checked>
+                <span>Recuérdame 30 días</span>
+              </label>
+              <a href="#reset" class="link" data-screen="reset">¿Olvidaste tu contraseña?</a>
+            </div>
+
+            <button type="submit" class="btn btn--primary btn--block btn--lg" id="btnLogin">
+              <span class="btn-text">Iniciar sesión</span>
+              <span class="btn-spinner"></span>
+            </button>
+          </form>
+
+          <div class="foot-text">
+            ¿No tienes cuenta? <a href="#signup" data-screen="signup">Empieza gratis</a>
+          </div>
+        </div>
+
+        <p class="legal-text">
+          Al continuar aceptas nuestros <a href="https://reservea.es#terminos">términos</a> y <a href="https://reservea.es#privacidad">política de privacidad</a>.
+        </p>
+      </div>
+    </section>
+
+    <!-- ═══ SIGNUP ═══ -->
+    <section class="screen" id="screen-signup">
+      <div class="auth-shell auth-shell--wide">
+        <div class="card">
+          <span class="eyebrow">Empieza gratis · 14 días</span>
+          <h1 class="title">Crea tu cuenta <em>Reservea</em></h1>
+          <p class="subtitle">Configura tu agente de voz IA y empieza a recibir reservas hoy mismo. Sin tarjeta.</p>
+
+          <button type="button" class="btn btn--google btn--block btn--lg" id="btnGoogleSignup">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path fill="#4285f4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34a853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#fbbc05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#ea4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
+            Registrarme con Google
+          </button>
+
+          <div class="divider">o con email</div>
+
+          <form id="formSignup" novalidate>
+            <div class="field">
+              <label class="field-label" for="signupBusiness">Nombre del negocio</label>
+              <input type="text" class="input" id="signupBusiness" name="business" placeholder="Karting Paketes, Restaurante La Roca…" required>
+              <div class="field-error">Indica el nombre de tu negocio.</div>
+            </div>
+
+            <div class="field-row">
+              <div class="field">
+                <label class="field-label" for="signupEmail">Email de contacto</label>
+                <input type="email" class="input" id="signupEmail" name="email" placeholder="tu@empresa.com" required autocomplete="email">
+                <div class="field-error">Email no válido.</div>
+              </div>
+
+              <div class="field">
+                <label class="field-label" for="signupPhone">Teléfono</label>
+                <input type="tel" class="input" id="signupPhone" name="phone" placeholder="+34 600 000 000" required autocomplete="tel">
+                <div class="field-error">Teléfono obligatorio.</div>
+              </div>
+            </div>
+
+            <div class="field">
+              <label class="field-label" for="signupPassword">Contraseña</label>
+              <div class="input-pwd-wrap">
+                <input type="password" class="input" id="signupPassword" name="password" placeholder="Mínimo 8 caracteres" required minlength="8" autocomplete="new-password">
+                <button type="button" class="input-pwd-toggle" data-pwd-toggle="signupPassword" aria-label="Mostrar contraseña">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                </button>
+              </div>
+              <div class="field-hint">Usa al menos 8 caracteres con mayúsculas, números o símbolos.</div>
+              <div class="field-error">Mínimo 8 caracteres.</div>
+            </div>
+
+            <div class="field-row">
+              <div class="field">
+                <label class="field-label" for="signupSector">Sector</label>
+                <select class="select" id="signupSector" name="sector" required>
+                  <option value="">Selecciona…</option>
+                  <option value="karting">Karting / Ocio</option>
+                  <option value="restaurante">Restaurante</option>
+                  <option value="hotel">Hotel / Alojamiento</option>
+                  <option value="clinica">Clínica / Salud</option>
+                  <option value="belleza">Belleza / Estética</option>
+                  <option value="gimnasio">Gimnasio / Fitness</option>
+                  <option value="escape">Escape Room</option>
+                  <option value="servicios">Servicios profesionales</option>
+                  <option value="otro">Otro</option>
+                </select>
+                <div class="field-error">Indica tu sector.</div>
+              </div>
+
+              <div class="field">
+                <label class="field-label" for="signupSource">¿Cómo nos conociste?</label>
+                <select class="select" id="signupSource" name="source">
+                  <option value="">Opcional</option>
+                  <option value="google">Google</option>
+                  <option value="recomendacion">Recomendación</option>
+                  <option value="redes">Redes sociales</option>
+                  <option value="evento">Evento / Feria</option>
+                  <option value="otro">Otro</option>
+                </select>
+              </div>
+            </div>
+
+            <button type="submit" class="btn btn--primary btn--block btn--lg" id="btnSignup">
+              <span class="btn-text">Crear mi cuenta gratis</span>
+              <span class="btn-spinner"></span>
+            </button>
+          </form>
+
+          <div class="foot-text">
+            ¿Ya tienes cuenta? <a href="#login" data-screen="login">Inicia sesión</a>
+          </div>
+        </div>
+
+        <p class="legal-text">
+          Al crear tu cuenta aceptas nuestros <a href="https://reservea.es#terminos">términos</a> y <a href="https://reservea.es#privacidad">política de privacidad</a>.
+        </p>
+      </div>
+    </section>
+
+    <!-- ═══ RESET ═══ -->
+    <section class="screen" id="screen-reset">
+      <div class="auth-shell">
+        <div class="card">
+          <span class="eyebrow">Recuperar acceso</span>
+          <h1 class="title">¿Olvidaste tu <em>contraseña</em>?</h1>
+          <p class="subtitle">Te enviaremos un enlace seguro a tu email para restablecerla.</p>
+
+          <form id="formReset" novalidate>
+            <div class="field">
+              <label class="field-label" for="resetEmail">Email de tu cuenta</label>
+              <input type="email" class="input" id="resetEmail" name="email" placeholder="tu@empresa.com" required autocomplete="email">
+              <div class="field-error">Introduce un email válido.</div>
+            </div>
+
+            <button type="submit" class="btn btn--primary btn--block btn--lg" id="btnReset">
+              <span class="btn-text">Enviar enlace de recuperación</span>
+              <span class="btn-spinner"></span>
+            </button>
+          </form>
+
+          <div class="foot-text">
+            <a href="#login" data-screen="login">← Volver a iniciar sesión</a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══ CHECK EMAIL ═══ -->
+    <section class="screen" id="screen-check-email">
+      <div class="auth-shell">
+        <div class="card status-card">
+          <div class="status-icon status-icon--info">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+          </div>
+          <h1 class="title">Revisa tu <em>email</em></h1>
+          <p class="subtitle">Te hemos enviado un enlace de verificación. Haz click para activar tu cuenta.</p>
+
+          <div class="status-detail">
+            Email enviado a <strong id="checkEmailAddr">tu@empresa.com</strong>.
+            Si no lo ves, revisa la carpeta de spam o promociones.
+          </div>
+
+          <div class="status-actions">
+            <button type="button" class="btn btn--ghost btn--block" id="btnResendEmail">Reenviar email</button>
+            <a href="#login" class="btn btn--primary btn--block" data-screen="login">Volver a iniciar sesión</a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══ RESET LINK SENT ═══ -->
+    <section class="screen" id="screen-reset-sent">
+      <div class="auth-shell">
+        <div class="card status-card">
+          <div class="status-icon status-icon--success">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+          </div>
+          <h1 class="title">Enlace <em>enviado</em></h1>
+          <p class="subtitle">Revisa tu email y haz click en el enlace para crear una nueva contraseña.</p>
+
+          <div class="status-detail">
+            Email enviado a <strong id="resetSentAddr">tu@empresa.com</strong>.
+            El enlace expira en 1 hora.
+          </div>
+
+          <div class="status-actions">
+            <a href="#login" class="btn btn--primary btn--block" data-screen="login">← Volver a iniciar sesión</a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <footer class="bottom-strip">
+    <a href="https://reservea.es">reservea.es</a>
+    <span class="bottom-sep">·</span>
+    <a href="mailto:hola@reservea.es">hola@reservea.es</a>
+    <span class="bottom-sep">·</span>
+    © 2026 Reservea
+  </footer>
+
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════════════════
+     Supabase Auth — Logic
+     ═══════════════════════════════════════════════════════════════════════════ -->
+<script type="module">
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
+
+const SUPABASE_URL = 'https://gzipetsnfybrphamhqtr.supabase.co';
+const SUPABASE_KEY = 'sb_publishable_fW30taa-rmc4wtfWXBlbLQ_nuRf9qWD';
+const PANEL_URL = '/panel.html';
+
+const supa = createClient(SUPABASE_URL, SUPABASE_KEY, {
+  auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true }
+});
+
+const $  = sel => document.querySelector(sel);
+const $$ = sel => document.querySelectorAll(sel);
+
+function showScreen(id){
+  $$('.screen').forEach(s => s.classList.remove('active'));
+  const target = document.getElementById('screen-' + id);
+  if(target) target.classList.add('active');
+  history.replaceState(null,'','#' + id);
+}
+
+function toast(msg, type='info'){
+  const host = $('#toastHost');
+  const el = document.createElement('div');
+  el.className = 'toast toast--' + type;
+  const icon = type === 'error'
+    ? '<svg class="toast-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>'
+    : type === 'success'
+    ? '<svg class="toast-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>'
+    : '<svg class="toast-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>';
+  el.innerHTML = icon + '<span>' + msg + '</span>';
+  host.appendChild(el);
+  setTimeout(() => {
+    el.style.transition = 'opacity 0.3s, transform 0.3s';
+    el.style.opacity = '0';
+    el.style.transform = 'translateY(-10px)';
+    setTimeout(() => el.remove(), 320);
+  }, 4500);
+}
+
+function setLoading(btnSel, on){
+  const btn = $(btnSel);
+  if(!btn) return;
+  btn.classList.toggle('loading', on);
+  btn.disabled = on;
+}
+
+function clearErrors(form){
+  form.querySelectorAll('.field.has-error').forEach(f => f.classList.remove('has-error'));
+}
+
+function setFieldError(input, msg){
+  const field = input.closest('.field');
+  if(!field) return;
+  field.classList.add('has-error');
+  const errEl = field.querySelector('.field-error');
+  if(errEl && msg) errEl.textContent = msg;
+}
+
+function translateError(err){
+  if(!err) return 'Algo ha fallado. Inténtalo de nuevo.';
+  const m = (err.message || '').toLowerCase();
+  if(m.includes('invalid login') || m.includes('invalid credentials')) return 'Email o contraseña incorrectos.';
+  if(m.includes('email not confirmed')) return 'Confirma tu email antes de iniciar sesión.';
+  if(m.includes('user already registered')) return 'Ya existe una cuenta con ese email. Inicia sesión.';
+  if(m.includes('password should be')) return 'La contraseña debe tener al menos 8 caracteres.';
+  if(m.includes('rate limit') || m.includes('too many')) return 'Demasiados intentos. Espera unos minutos.';
+  if(m.includes('network')) return 'Error de conexión. Comprueba tu internet.';
+  return err.message || 'Algo ha fallado. Inténtalo de nuevo.';
+}
+
+$$('[data-pwd-toggle]').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const inp = document.getElementById(btn.dataset.pwdToggle);
+    if(!inp) return;
+    inp.type = inp.type === 'password' ? 'text' : 'password';
+  });
+});
+
+$$('[data-screen]').forEach(a => {
+  a.addEventListener('click', e => {
+    e.preventDefault();
+    showScreen(a.dataset.screen);
+  });
+});
+
+function initRoute(){
+  const params = new URLSearchParams(location.search);
+  if(params.get('signup') === '1'){ showScreen('signup'); return; }
+  const hash = location.hash.replace('#','');
+  const valid = ['login','signup','reset','check-email','reset-sent'];
+  showScreen(valid.includes(hash) ? hash : 'login');
+}
+
+// LOGIN
+$('#formLogin').addEventListener('submit', async e => {
+  e.preventDefault();
+  clearErrors(e.target);
+  const email = $('#loginEmail').value.trim();
+  const pwd = $('#loginPassword').value;
+  let bad = false;
+  if(!email || !email.includes('@')){ setFieldError($('#loginEmail')); bad = true; }
+  if(!pwd){ setFieldError($('#loginPassword')); bad = true; }
+  if(bad) return;
+
+  setLoading('#btnLogin', true);
+  const { error } = await supa.auth.signInWithPassword({ email, password: pwd });
+  setLoading('#btnLogin', false);
+
+  if(error){ toast(translateError(error), 'error'); return; }
+  toast('¡Bienvenido!', 'success');
+  setTimeout(() => { window.location.href = PANEL_URL; }, 600);
+});
+
+// SIGNUP
+$('#formSignup').addEventListener('submit', async e => {
+  e.preventDefault();
+  clearErrors(e.target);
+  const business = $('#signupBusiness').value.trim();
+  const email = $('#signupEmail').value.trim();
+  const phone = $('#signupPhone').value.trim();
+  const pwd = $('#signupPassword').value;
+  const sector = $('#signupSector').value;
+  const source = $('#signupSource').value;
+
+  let bad = false;
+  if(!business){ setFieldError($('#signupBusiness')); bad = true; }
+  if(!email || !email.includes('@')){ setFieldError($('#signupEmail')); bad = true; }
+  if(!phone){ setFieldError($('#signupPhone')); bad = true; }
+  if(!pwd || pwd.length < 8){ setFieldError($('#signupPassword')); bad = true; }
+  if(!sector){ setFieldError($('#signupSector')); bad = true; }
+  if(bad) return;
+
+  setLoading('#btnSignup', true);
+  const { error } = await supa.auth.signUp({
+    email, password: pwd,
+    options: {
+      data: { business_name: business, phone, sector, source: source || null },
+      emailRedirectTo: window.location.origin + '/auth.html#login'
+    }
+  });
+  setLoading('#btnSignup', false);
+
+  if(error){ toast(translateError(error), 'error'); return; }
+  $('#checkEmailAddr').textContent = email;
+  showScreen('check-email');
+});
+
+// RESET
+$('#formReset').addEventListener('submit', async e => {
+  e.preventDefault();
+  clearErrors(e.target);
+  const email = $('#resetEmail').value.trim();
+  if(!email || !email.includes('@')){ setFieldError($('#resetEmail')); return; }
+
+  setLoading('#btnReset', true);
+  const { error } = await supa.auth.resetPasswordForEmail(email, {
+    redirectTo: window.location.origin + '/auth.html#login'
+  });
+  setLoading('#btnReset', false);
+
+  if(error){ toast(translateError(error), 'error'); return; }
+  $('#resetSentAddr').textContent = email;
+  showScreen('reset-sent');
+});
+
+// GOOGLE
+async function loginWithGoogle(){
+  const { error } = await supa.auth.signInWithOAuth({
+    provider: 'google',
+    options: { redirectTo: window.location.origin + PANEL_URL }
+  });
+  if(error) toast(translateError(error), 'error');
+}
+$('#btnGoogle').addEventListener('click', loginWithGoogle);
+$('#btnGoogleSignup').addEventListener('click', loginWithGoogle);
+
+// RESEND
+$('#btnResendEmail').addEventListener('click', async () => {
+  const email = $('#checkEmailAddr').textContent;
+  if(!email || !email.includes('@')){ toast('Email no disponible', 'error'); return; }
+  const { error } = await supa.auth.resend({ type: 'signup', email });
+  if(error){ toast(translateError(error), 'error'); return; }
+  toast('Email reenviado correctamente', 'success');
+});
+
+// BOOT
+(async () => {
+  const { data: { session } } = await supa.auth.getSession();
+  if(session){ window.location.replace(PANEL_URL); return; }
+  initRoute();
+})();
+window.addEventListener('hashchange', initRoute);
+</script>
+
+</body>
+</html>
