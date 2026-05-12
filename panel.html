@@ -22473,5 +22473,8 @@ function bindUI(){
   </div>
 </div>
 
+<!-- ═══ BOTÓN FLOTANTE DE DIAGNÓSTICO TEMPORAL ═══ -->
+<button id="rsvBtnDiag" onclick="if(typeof mostrarDiag==='function'){mostrarDiag();}else{alert('Diag no cargado aún, espera unos segundos');}" style="position:fixed;bottom:14px;right:14px;z-index:99999;background:#2DDFA1;color:#000;border:0;width:42px;height:42px;border-radius:50%;font-size:18px;cursor:pointer;box-shadow:0 4px 12px rgba(0,0,0,0.4);font-weight:700;display:flex;align-items:center;justify-content:center;" title="Abrir diagnóstico">🐛</button>
+
 </body>
 </html>
