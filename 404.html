@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="theme-color" content="#0a0e1a">
+  <meta name="robots" content="noindex, nofollow">
+  <title>Mantenimiento — Reservea</title>
+  <meta name="description" content="Estamos en mantenimiento. Volvemos en unos minutos.">
+
+  <link rel="icon" href="/favicon.ico" type="image/x-icon">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg: #0a0e1a;
+      --bg-2: #0f1422;
+      --brand: #2DDFA1;
+      --brand-2: #1FB37F;
+      --warn: #F5A524;
+      --info: #60a5fa;
+      --text: #ffffff;
+      --text-muted: rgba(255,255,255,0.70);
+      --text-dim: rgba(255,255,255,0.45);
+      --line: rgba(255,255,255,0.08);
+      --ease: cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    html, body {
+      height: 100%;
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      -webkit-font-smoothing: antialiased;
+      overflow: hidden;
+    }
+
+    /* ═══ FONDO ANIMADO ═══ */
+    .bg-decor {
+      position: fixed;
+      inset: 0;
+      overflow: hidden;
+      pointer-events: none;
+      z-index: 0;
+    }
+    .orb {
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(80px);
+      opacity: 0.35;
+      animation: orbFloat 18s ease-in-out infinite;
+    }
+    .orb--1 {
+      width: 480px; height: 480px;
+      background: radial-gradient(circle, rgba(45,223,161,0.5), transparent 70%);
+      top: -100px; left: -100px;
+      animation-delay: 0s;
+    }
+    .orb--2 {
+      width: 520px; height: 520px;
+      background: radial-gradient(circle, rgba(96,165,250,0.4), transparent 70%);
+      bottom: -150px; right: -150px;
+      animation-delay: -6s;
+    }
+    .orb--3 {
+      width: 380px; height: 380px;
+      background: radial-gradient(circle, rgba(245,165,36,0.3), transparent 70%);
+      top: 40%; left: 50%;
+      transform: translate(-50%, -50%);
+      animation-delay: -12s;
+      animation-duration: 22s;
+    }
+    @keyframes orbFloat {
+      0%, 100% { transform: translate(0, 0) scale(1); }
+      33%      { transform: translate(60px, -40px) scale(1.1); }
+      66%      { transform: translate(-40px, 50px) scale(0.95); }
+    }
+    .bg-decor.has-translate-3 .orb--3 {
+      animation: orbFloat3 22s ease-in-out infinite;
+    }
+    @keyframes orbFloat3 {
+      0%, 100% { transform: translate(-50%, -50%) scale(1); }
+      50%      { transform: translate(-50%, -55%) scale(1.15); }
+    }
+
+    /* Grid sutil de fondo */
+    .grid-bg {
+      position: fixed;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(255,255,255,0.025) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,0.025) 1px, transparent 1px);
+      background-size: 48px 48px;
+      mask-image: radial-gradient(ellipse 80% 70% at 50% 50%, black 30%, transparent 70%);
+      -webkit-mask-image: radial-gradient(ellipse 80% 70% at 50% 50%, black 30%, transparent 70%);
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    /* ═══ CONTENIDO CENTRAL ═══ */
+    .stage {
+      position: relative;
+      z-index: 2;
+      height: 100vh;
+      height: 100dvh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      gap: 36px;
+    }
+
+    /* ─── Logo + doble anillo ─── */
+    .logo-wrap {
+      position: relative;
+      width: 140px;
+      height: 140px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      animation: fadeUp 0.7s var(--ease) backwards;
+    }
+    .logo-ring {
+      position: absolute;
+      inset: 0;
+      border-radius: 50%;
+      border: 2px solid transparent;
+      border-top-color: var(--brand);
+      border-right-color: var(--brand);
+      animation: spin 2s linear infinite;
+    }
+    .logo-ring--inner {
+      inset: 14px;
+      border-top-color: transparent;
+      border-right-color: transparent;
+      border-bottom-color: var(--info);
+      border-left-color: var(--info);
+      animation: spin 2.6s linear infinite reverse;
+      opacity: 0.55;
+    }
+    .logo-ring--outer {
+      inset: -14px;
+      border: 1px dashed rgba(45,223,161,0.18);
+      animation: spin 30s linear infinite;
+    }
+    .logo-mark {
+      position: relative;
+      width: 60px;
+      height: 60px;
+      color: var(--brand);
+      animation: logoPulse 2.2s ease-in-out infinite;
+      filter: drop-shadow(0 0 18px rgba(45,223,161,0.55));
+    }
+    .logo-mark svg { width: 100%; height: 100%; display: block; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    @keyframes logoPulse {
+      0%, 100% { transform: scale(0.94); opacity: 0.82; }
+      50% { transform: scale(1.06); opacity: 1; }
+    }
+
+    /* ─── Textos ─── */
+    .text-block {
+      text-align: center;
+      max-width: 540px;
+      animation: fadeUp 0.7s var(--ease) 0.15s backwards;
+    }
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 14px;
+      background: rgba(245,165,36,0.10);
+      border: 1px solid rgba(245,165,36,0.30);
+      border-radius: 100px;
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      color: var(--warn);
+      margin-bottom: 22px;
+    }
+    .pill-dot {
+      width: 6px;
+      height: 6px;
+      background: var(--warn);
+      border-radius: 50%;
+      animation: dotPulse 1.4s ease-in-out infinite;
+      box-shadow: 0 0 8px var(--warn);
+    }
+    @keyframes dotPulse {
+      0%, 100% { opacity: 0.55; transform: scale(0.9); }
+      50% { opacity: 1; transform: scale(1.1); }
+    }
+    h1 {
+      font-size: clamp(34px, 6vw, 56px);
+      font-weight: 800;
+      line-height: 1.08;
+      letter-spacing: -0.035em;
+      margin-bottom: 18px;
+    }
+    h1 em {
+      font-family: 'Instrument Serif', Georgia, serif;
+      font-style: italic;
+      font-weight: 400;
+      color: var(--brand);
+      letter-spacing: -0.01em;
+    }
+    .lead {
+      font-size: clamp(15px, 2vw, 17px);
+      color: var(--text-muted);
+      line-height: 1.6;
+      margin-bottom: 32px;
+    }
+
+    /* ─── Barra de progreso indeterminada ─── */
+    .progress {
+      position: relative;
+      width: min(280px, 80vw);
+      height: 4px;
+      background: rgba(255,255,255,0.05);
+      border-radius: 100px;
+      overflow: hidden;
+      margin: 0 auto 28px;
+      animation: fadeUp 0.7s var(--ease) 0.3s backwards;
+    }
+    .progress-bar {
+      position: absolute;
+      top: 0;
+      height: 100%;
+      width: 35%;
+      background: linear-gradient(90deg, transparent, var(--brand), transparent);
+      border-radius: inherit;
+      animation: barSlide 1.6s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+    }
+    @keyframes barSlide {
+      0% { left: -35%; }
+      100% { left: 100%; }
+    }
+
+    /* ─── Botones ─── */
+    .ctas {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      justify-content: center;
+      animation: fadeUp 0.7s var(--ease) 0.45s backwards;
+    }
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 12px 22px;
+      font-size: 14.5px;
+      font-weight: 600;
+      border-radius: 12px;
+      text-decoration: none;
+      letter-spacing: -0.005em;
+      transition: transform 0.18s var(--ease), box-shadow 0.18s var(--ease), background 0.18s var(--ease);
+      cursor: pointer;
+      border: 0;
+      font-family: inherit;
+    }
+    .btn--primary {
+      background: linear-gradient(135deg, var(--brand), var(--brand-2));
+      color: #0a0e1a;
+      box-shadow: 0 6px 20px -6px rgba(45,223,161,0.5);
+    }
+    .btn--primary:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 10px 28px -6px rgba(45,223,161,0.7);
+    }
+    .btn--ghost {
+      background: rgba(255,255,255,0.05);
+      color: var(--text);
+      border: 1px solid rgba(255,255,255,0.10);
+    }
+    .btn--ghost:hover {
+      background: rgba(255,255,255,0.08);
+    }
+    .btn svg {
+      width: 16px;
+      height: 16px;
+      stroke: currentColor;
+      stroke-width: 2.2;
+      fill: none;
+    }
+
+    /* ─── Stats / contador ─── */
+    .stats {
+      display: flex;
+      gap: 22px;
+      align-items: center;
+      font-family: 'JetBrains Mono', 'SF Mono', monospace;
+      font-size: 12px;
+      color: var(--text-dim);
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      animation: fadeUp 0.7s var(--ease) 0.6s backwards;
+    }
+    .stat-dot {
+      width: 7px;
+      height: 7px;
+      background: var(--brand);
+      border-radius: 50%;
+      box-shadow: 0 0 8px var(--brand);
+      animation: dotPulse 1.4s ease-in-out infinite;
+    }
+    .stat-divider {
+      width: 1px;
+      height: 12px;
+      background: var(--line);
+    }
+
+    /* ─── Footer ─── */
+    .footer {
+      position: absolute;
+      bottom: 24px;
+      left: 0;
+      right: 0;
+      text-align: center;
+      font-size: 12px;
+      color: var(--text-dim);
+      z-index: 3;
+      animation: fadeUp 0.7s var(--ease) 0.75s backwards;
+    }
+    .footer a {
+      color: var(--text-muted);
+      text-decoration: none;
+      transition: color 0.18s var(--ease);
+    }
+    .footer a:hover { color: var(--brand); }
+    .footer-sep { margin: 0 10px; color: var(--text-dim); }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(14px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Responsive */
+    @media (max-width: 520px) {
+      .stage { gap: 24px; padding: 20px; }
+      .logo-wrap { width: 110px; height: 110px; }
+      .logo-mark { width: 46px; height: 46px; }
+      .text-block { padding: 0 8px; }
+      .footer { font-size: 11px; bottom: 16px; padding: 0 16px; }
+      .footer-sep { margin: 0 6px; }
+      .stats { font-size: 11px; gap: 16px; }
+    }
+    @media (max-height: 640px) {
+      .stage { gap: 20px; }
+      .logo-wrap { width: 100px; height: 100px; margin-top: 8px; }
+      .footer { position: relative; bottom: auto; margin-top: 16px; }
+    }
+
+    /* Reduce motion */
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+      }
+      .orb { animation: none; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Fondo animado -->
+  <div class="bg-decor has-translate-3" aria-hidden="true">
+    <div class="orb orb--1"></div>
+    <div class="orb orb--2"></div>
+    <div class="orb orb--3"></div>
+  </div>
+  <div class="grid-bg" aria-hidden="true"></div>
+
+  <main class="stage">
+
+    <!-- Logo con doble anillo -->
+    <div class="logo-wrap" role="status" aria-label="Cargando">
+      <div class="logo-ring logo-ring--outer"></div>
+      <div class="logo-ring"></div>
+      <div class="logo-ring logo-ring--inner"></div>
+      <div class="logo-mark">
+        <svg viewBox="0 0 100 100" fill="none" aria-hidden="true">
+          <path d="M5.41 2.70L67.12 2.70L67.57 3.15L70.72 3.15L71.17 3.60L72.52 3.60L72.97 4.05L74.32 4.05L74.77 4.50L78.38 5.41L80.63 6.76L81.53 6.76L83.33 7.66L88.29 11.26L90.09 13.06L90.09 13.51L91.44 14.41L91.89 15.77L93.24 17.12L94.14 19.37L95.05 20.27L95.05 21.17L96.40 24.32L96.40 25.68L96.85 26.13L96.85 29.28L97.30 29.73L96.85 37.39L96.40 37.84L96.40 39.19L95.50 40.99L95.05 43.69L93.24 47.30L91.89 48.65L91.44 50.00L85.14 56.76L79.73 60.36L75.23 62.61L70.72 63.96L70.27 64.41L70.27 65.32L72.07 66.67L72.07 67.12L73.87 68.47L74.32 69.37L75.68 70.27L76.13 71.17L77.48 72.07L95.05 89.64L95.50 89.64L96.85 91.44L97.30 91.44L98.65 93.69L98.65 94.59L97.30 96.40L96.40 96.85L75.68 96.85L75.23 96.40L72.52 95.95L70.27 95.05L67.57 93.24L62.16 87.84L62.16 87.39L56.76 81.98L56.76 81.53L54.95 80.18L54.95 79.73L50.90 75.68L50.90 75.23L49.55 74.32L49.55 73.87L42.79 66.67L31.53 66.67L31.08 67.12L30.63 70.27L30.18 70.72L30.18 72.52L28.38 77.48L27.93 81.53L26.58 84.68L26.13 88.74L24.32 93.69L22.07 95.95L19.82 96.85L3.15 96.85L0.90 95.05L1.35 89.19L2.70 85.59L3.15 81.98L4.50 78.38L4.95 74.77L6.31 71.17L6.31 69.82L7.21 67.57L7.21 65.77L7.66 65.32L8.56 60.81L9.01 60.36L9.46 56.76L10.36 55.41L10.81 51.35L12.61 46.40L12.61 44.59L13.06 44.14L13.51 40.99L14.41 39.19L14.86 35.59L16.67 31.53L18.02 30.18L21.62 28.38L39.19 28.38L40.09 29.28L39.64 34.68L38.74 36.49L38.74 37.84L37.84 40.09L37.84 41.89L37.39 42.34L36.49 46.85L36.04 47.30L36.04 49.10L35.59 49.55L36.04 50.00L58.56 50.00L59.01 49.55L61.26 49.55L61.71 49.10L63.06 49.10L64.41 48.20L65.32 48.20L69.82 45.50L73.87 40.99L75.68 36.04L75.68 33.33L76.13 32.88L75.68 32.43L75.68 29.73L73.42 24.77L69.82 21.62L68.02 20.72L67.12 20.72L65.77 19.82L64.41 19.82L62.16 18.92L19.82 18.92L19.37 18.47L17.12 18.47L16.67 18.02L14.41 17.57L13.06 16.67L12.16 16.67L9.46 14.86L6.76 12.16L4.95 9.46L4.95 8.56L4.05 6.76L4.05 4.50L5.41 2.70Z" fill="currentColor"/>
+        </svg>
+      </div>
+    </div>
+
+    <!-- Textos -->
+    <div class="text-block">
+      <div class="pill">
+        <span class="pill-dot"></span>
+        <span>Mantenimiento en curso</span>
+      </div>
+      <h1>Estamos en <em>mantenimiento</em></h1>
+      <p class="lead">Estamos mejorando Reservea para ti. Volvemos en unos minutos…</p>
+    </div>
+
+    <!-- Barra de progreso -->
+    <div class="progress" aria-hidden="true">
+      <div class="progress-bar"></div>
+    </div>
+
+    <!-- CTAs -->
+    <div class="ctas">
+      <button class="btn btn--primary" onclick="window.location.reload();">
+        <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 0 1 15.5-6.4M21 4v6h-6"/><path d="M21 12a9 9 0 0 1-15.5 6.4M3 20v-6h6"/></svg>
+        Volver a intentar
+      </button>
+      <a href="https://wa.me/34684213448" target="_blank" rel="noopener noreferrer" class="btn btn--ghost">
+        <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>
+        Contactar
+      </a>
+    </div>
+
+    <!-- Stats / contador -->
+    <div class="stats">
+      <span class="stat-dot"></span>
+      <span>Reservea</span>
+      <span class="stat-divider"></span>
+      <span id="elapsed">00:00</span>
+      <span class="stat-divider"></span>
+      <span>Auto-recarga</span>
+    </div>
+
+  </main>
+
+  <footer class="footer">
+    <a href="https://reservea.es">reservea.es</a>
+    <span class="footer-sep">·</span>
+    <a href="mailto:hola@reservea.es">hola@reservea.es</a>
+    <span class="footer-sep">·</span>
+    © 2026 Reservea SL
+  </footer>
+
+  <script>
+    // ─── Contador del tiempo transcurrido en la página ───
+    (function(){
+      var start = Date.now();
+      var el = document.getElementById('elapsed');
+      function tick(){
+        var s = Math.floor((Date.now() - start) / 1000);
+        var mm = String(Math.floor(s / 60)).padStart(2,'0');
+        var ss = String(s % 60).padStart(2,'0');
+        if (el) el.textContent = mm + ':' + ss;
+      }
+      tick();
+      setInterval(tick, 1000);
+    })();
+
+    // ─── Auto-reload cada 20 segundos para intentar volver ───
+    // Si el deploy ya terminó, recargará y verá la página normal
+    setTimeout(function(){
+      window.location.reload();
+    }, 20000);
+
+    // ─── Si vuelve a estar online, recargar inmediatamente ───
+    window.addEventListener('online', function(){
+      window.location.reload();
+    });
+  </script>
+
+</body>
+</html>
