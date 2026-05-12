@@ -16836,8 +16836,76 @@ function bindUI(){
         console.log('🧹 Auto-reset ejecutado, recargando...');
         setTimeout(() => window.location.reload(true), 300);
       }
+      // ── MODO DIAGNÓSTICO ?diag=1 → muestra panel de info en pantalla ──
+      if (sp.get('diag') === '1') {
+        setTimeout(_mostrarDiagPanel, 2500);
+      }
     } catch (e) { console.error(e); }
   })();
+
+  // Panel de diagnóstico visible en pantalla (sin consola)
+  function _mostrarDiagPanel() {
+    try {
+      const cli = window.reservea && window.reservea.cliente;
+      const esDemo = window.reservea && window.reservea.esModoDemo && window.reservea.esModoDemo(cli);
+
+      // Recopilar keys de localStorage
+      const keysLS = [];
+      for (let i = 0; i < localStorage.length; i++) {
+        const k = localStorage.key(i);
+        if (k && k.startsWith('reservea_')) {
+          const v = localStorage.getItem(k) || '';
+          keysLS.push(k + ' = ' + (v.length > 60 ? v.substring(0,60)+'…' : v));
+        }
+      }
+
+      // Badges actuales
+      const badgeEspEl = document.getElementById('badgeEspera');
+      const badgeIncEl = document.getElementById('badgeIncidencias');
+      const badgeEsp = badgeEspEl ? (badgeEspEl.style.display === 'none' ? '(oculto)' : badgeEspEl.textContent) : '—';
+      const badgeInc = badgeIncEl ? (badgeIncEl.style.display === 'none' ? '(oculto)' : badgeIncEl.textContent) : '—';
+
+      const overlay = document.createElement('div');
+      overlay.style.cssText = 'position:fixed;inset:0;z-index:99998;background:rgba(0,0,0,0.85);overflow:auto;padding:16px;';
+      overlay.innerHTML = `
+        <div style="background:#0f1422;color:#fff;font-family:monospace;font-size:12px;padding:18px;border-radius:12px;border:2px solid #2DDFA1;max-width:600px;margin:0 auto;line-height:1.6;">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
+            <div style="font-weight:700;font-size:14px;color:#2DDFA1;">🐛 DIAGNÓSTICO RESERVEA</div>
+            <button onclick="document.body.removeChild(this.closest('div').parentNode);" style="background:#F87171;color:#000;border:0;padding:6px 12px;font-weight:700;border-radius:6px;cursor:pointer;">✕ Cerrar</button>
+          </div>
+          <div style="color:#F5A524;font-weight:700;margin-top:14px;">CLIENTE:</div>
+          <div>· email: ${cli && cli.email || '(no cargado)'}</div>
+          <div>· plan: ${cli && cli.plan || '?'}</div>
+          <div>· estado: ${cli && cli.estado || '?'}</div>
+          <div>· fuente_datos: ${cli && cli.fuente_datos || '?'}</div>
+          <div>· airtable_pat_verificada: ${cli && cli.airtable_pat_verificada}</div>
+          <div>· esModoDemo: <span style="color:${esDemo?'#F87171':'#2DDFA1'};font-weight:700;">${esDemo}</span></div>
+
+          <div style="color:#F5A524;font-weight:700;margin-top:14px;">BADGES MÓVIL ACTUALES:</div>
+          <div>· Espera (id="badgeEspera"): <span style="font-weight:700;color:#2DDFA1;">${badgeEsp}</span></div>
+          <div>· Incidencias (id="badgeIncidencias"): <span style="font-weight:700;color:#2DDFA1;">${badgeInc}</span></div>
+
+          <div style="color:#F5A524;font-weight:700;margin-top:14px;">LISTAS EN MEMORIA:</div>
+          <div>· _esperaListaActual.length: ${(window._esperaListaActual && _esperaListaActual.length) || (typeof _esperaListaActual !== 'undefined' ? _esperaListaActual.length : '?')}</div>
+          <div>· _reservasTodas.length: ${(window._reservasTodas && window._reservasTodas.length) || 0}</div>
+          <div>· _llamadasTodas.length: ${(window._llamadasTodas && window._llamadasTodas.length) || 0}</div>
+
+          <div style="color:#F5A524;font-weight:700;margin-top:14px;">localStorage (${keysLS.length} keys):</div>
+          <div style="background:#000;padding:8px;border-radius:6px;font-size:10.5px;white-space:pre-wrap;word-break:break-all;max-height:200px;overflow-y:auto;">${keysLS.length === 0 ? '(vacío)' : keysLS.join('\n')}</div>
+
+          <div style="color:#F5A524;font-weight:700;margin-top:14px;">VERSIÓN:</div>
+          <div>v2026-05-13-A (con modo diagnóstico)</div>
+
+          <div style="margin-top:18px;padding:10px;background:rgba(245,165,36,0.1);border:1px dashed #F5A524;border-radius:8px;color:#F5A524;">📸 Hazme captura de esta pantalla y envíamela.</div>
+        </div>
+      `;
+      document.body.appendChild(overlay);
+    } catch (e) {
+      alert('Error diag: ' + e.message);
+    }
+  }
+  // Exponer globalmente para llamarlo desde cualquier sitio
+  window.mostrarDiag = _mostrarDiagPanel;
 
   // ── CACHE local (sólo para mostrar mientras la API responde) ──────────
   // El cache se scopea por email del cliente actual para evitar que datos
