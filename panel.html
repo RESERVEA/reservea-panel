@@ -18768,6 +18768,7 @@ function bindUI(){
     // Antes de crear la reserva, comprobar que el slot no está bloqueado
     // en Airtable (campo nota_bloqueo no vacío).
     const esDemoBloqueo = window.reservea && window.reservea.esModoDemo && window.reservea.esModoDemo(cliente);
+    let slotEncontrado = null;  // Capturará el slot match para asociar la reserva
     if (!esDemoBloqueo && cliente.airtable_pat_verificada) {
       try {
         const horaSlotBuscar = hora.length === 5 ? hora : hora.substring(0, 5);
@@ -18811,6 +18812,9 @@ function bindUI(){
         console.log('[BloqueoCheck] Slot match:', slotMatch);
 
         if (slotMatch) {
+          // ⚡ Guardar el slot encontrado para asociarlo a la reserva
+          slotEncontrado = slotMatch;
+
           const notaBloqueo = (slotMatch.nota_bloqueo || '').toString().trim();
           console.log('[BloqueoCheck] nota_bloqueo:', JSON.stringify(notaBloqueo));
           if (notaBloqueo) {
@@ -18836,7 +18840,9 @@ function bindUI(){
     const localizador = 'KP' + Math.floor(1000 + Math.random() * 9000);
     const telLimpio = tel.replace(/\D/g, '');
     const telFormat = telLimpio.startsWith('34') ? '+' + telLimpio : '+34' + telLimpio;
-    const horaFormat = hora.length === 5 ? hora + ':00' : hora;
+    // Hora en formato HH:MM (sin segundos) - igual que el voice agent V59+
+    // que es lo que asocia correctamente la reserva al slot en Airtable
+    const horaFormat = hora.length >= 5 ? hora.substring(0, 5) : hora;
 
     // Payload con campos planos (no anidados en "extra")
     // IMPORTANTE: los campos REALES de Airtable son `nombre` y `telefono`
@@ -18857,6 +18863,18 @@ function bindUI(){
       precio_total: t.precio,
       localizador: localizador
     };
+
+    // ⚡ Asociar la reserva al slot encontrado (campo "slot" en Airtable
+    // es de tipo "Link to another record", espera array de IDs).
+    // Esto es lo que hace el voice agent V59+ en el nodo "Crear Reserva Airtable":
+    //   slot: [$json.slot_id]
+    // Sin esto la reserva NO queda asociada al slot en Airtable.
+    if (slotEncontrado && slotEncontrado.id) {
+      fields.slot = [slotEncontrado.id];
+      console.log('[NuevaReserva] Asociando al slot:', slotEncontrado.id);
+    } else {
+      console.warn('[NuevaReserva] Sin slot asociado — la reserva quedará suelta');
+    }
 
     console.log('[NuevaReserva] Creando con fields:', fields);
 
