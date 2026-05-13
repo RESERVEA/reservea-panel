@@ -13659,14 +13659,14 @@ function bindUI(){
       if (kbip > 0) kpills.push(`<span class="kpill kpbip">${kbip}×Biplaza</span>`);
       const kpillsHtml = kpills.length > 0 ? kpills.join('') : '<span class="cell-muted fs-xs">—</span>';
 
-      // Detectar canal de la reserva
-      // - Si tiene call_id → vino de Voz (Rebeca por teléfono)
-      // - Si tiene fuente whatsapp → vino por WhatsApp
-      // - Si no tiene ninguno → vino del Panel (creación manual)
-      const tieneCallId = r.call_id && String(r.call_id).trim().length > 0;
+      // Detectar canal de la reserva por el LOCALIZADOR:
+      // - Empieza por "KP" → vino del Panel (creación manual)
+      // - 6 dígitos sin letras → vino del Voice (Rebeca por teléfono)
+      // - fuente whatsapp → WhatsApp
+      const loc = String(r.localizador || '').trim();
       const esWhatsApp = r.fuente === 'whatsapp';
-      const esVoz = tieneCallId && !esWhatsApp;
-      const esPanel = !esWhatsApp && !esVoz;
+      const esPanel = !esWhatsApp && /^KP/i.test(loc);
+      const esVoz = !esWhatsApp && !esPanel;
       const canalCls = esWhatsApp ? 'wa' : (esPanel ? 'panel' : 'voice');
       const canalLabel = esWhatsApp ? 'WhatsApp' : (esPanel ? 'Panel' : 'Voz');
       const canalSvg = esWhatsApp
