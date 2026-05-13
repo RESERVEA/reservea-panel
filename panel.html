@@ -13659,14 +13659,17 @@ function bindUI(){
       if (kbip > 0) kpills.push(`<span class="kpill kpbip">${kbip}×Biplaza</span>`);
       const kpillsHtml = kpills.length > 0 ? kpills.join('') : '<span class="cell-muted fs-xs">—</span>';
 
-      // Detectar canal de la reserva por el LOCALIZADOR:
-      // - Empieza por "KP" → vino del Panel (creación manual)
-      // - 6 dígitos sin letras → vino del Voice (Rebeca por teléfono)
-      // - fuente whatsapp → WhatsApp
+      // Detectar canal de la reserva mirando los IDs en Airtable:
+      // - call_id empieza por "call_" → Voz (Rebeca)
+      // - call_id empieza por "wa_" O tiene call_id_whatsapp → WhatsApp
+      // - Sin call_id ni call_id_whatsapp + localizador KP → Panel (creación manual)
+      // (también respeta el campo r.fuente si está seteado por compatibilidad)
+      const callId = String(r.call_id || '').trim();
+      const callIdWA = String(r.call_id_whatsapp || '').trim();
       const loc = String(r.localizador || '').trim();
-      const esWhatsApp = r.fuente === 'whatsapp';
-      const esPanel = !esWhatsApp && /^KP/i.test(loc);
-      const esVoz = !esWhatsApp && !esPanel;
+      const esWhatsApp = r.fuente === 'whatsapp' || callIdWA.length > 0 || /^wa_/i.test(callId);
+      const esVoz = !esWhatsApp && /^call_/i.test(callId);
+      const esPanel = !esWhatsApp && !esVoz && /^KP/i.test(loc);
       const canalCls = esWhatsApp ? 'wa' : (esPanel ? 'panel' : 'voice');
       const canalLabel = esWhatsApp ? 'WhatsApp' : (esPanel ? 'Panel' : 'Voz');
       const canalSvg = esWhatsApp
