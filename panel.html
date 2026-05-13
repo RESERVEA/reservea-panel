@@ -13663,10 +13663,12 @@ function bindUI(){
       // - call_id empieza por "call_" → Voz (Rebeca)
       // - call_id empieza por "wa_" O tiene call_id_whatsapp → WhatsApp
       // - Sin call_id ni call_id_whatsapp + localizador KP → Panel (creación manual)
-      // (también respeta el campo r.fuente si está seteado por compatibilidad)
-      const callId = String(r.call_id || '').trim();
-      const callIdWA = String(r.call_id_whatsapp || '').trim();
-      const loc = String(r.localizador || '').trim();
+      // IMPORTANTE: estos campos vienen dentro de r.extra (el normalizador
+      // del API los pone ahí), no en r directamente.
+      const ex = r.extra || {};
+      const callId = String(ex.call_id || r.call_id || '').trim();
+      const callIdWA = String(ex.call_id_whatsapp || r.call_id_whatsapp || '').trim();
+      const loc = String(ex.localizador || r.localizador || '').trim();
       const esWhatsApp = r.fuente === 'whatsapp' || callIdWA.length > 0 || /^wa_/i.test(callId);
       const esVoz = !esWhatsApp && /^call_/i.test(callId);
       const esPanel = !esWhatsApp && !esVoz && /^KP/i.test(loc);
